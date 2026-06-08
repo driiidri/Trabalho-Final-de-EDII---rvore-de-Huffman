@@ -124,13 +124,45 @@ void comprimir(char **dicionario){
     fclose(saida);
 }
 
+void descompressao(No *raiz){
+    No *aux = raiz;
+    int bit;
 
+    // Abertura do arquivo com o texto codificado
+    FILE *entrada = fopen("codificado.txt", "r");
+    if(entrada == NULL) return;
 
+    // Abertura do arquivo de destino
+    FILE *saida = fopen("decodificado.txt", "w");
+    if(saida == NULL){
+        fclose(entrada);
+        return;
+    }
 
+    // Processo de decodificação
+    while((bit = fgetc(entrada)) != EOF){
+        // Navegação baseada no bit lido
+        if(bit == '0'){
+            aux = aux->esquerda;
+        }
+        else if(bit == '1'){
+            aux = aux->direita;
+        }
 
+        // Verificação do Nó Folha, onde estão os caracteres
+        if(aux->esquerda == NULL && aux->direita == NULL){
+            // Escreve o caracter original no arquivo de saída
+            fprintf(saida, "%c", aux->caracter);
+            // Volta para a raiz depois de salvar o caracter
+            aux = raiz;
+        }
+    }
 
+    // Finalizando
+    fclose(entrada);
+    fclose(saida);
 
-
+}
 
 
 int main(){
