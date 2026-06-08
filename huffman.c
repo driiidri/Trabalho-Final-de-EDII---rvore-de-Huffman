@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX 100
+
 // Um nó da ÁRVORE. Ele sabe:
 // - qual caractere ele representa (se for folha)
 // - qual a frequência desse caractere
@@ -71,9 +73,56 @@ void inserirOrdenado(){
 }
 
 
+void gerarCodigos(No *no, char *caminhoAtual, int nivel, char dicionario[MAX]){
+    // Caso base de segurança caso o nó for nulo, já encerra a recursão
+    if(no == NULL) return;
 
+    // Se o nó é uma folha, encontramos um caracter
+    if(no->esquerda == NULL && no->direita == NULL){
+        caminhoAtual[nivel] = '\0' // Finaliza a string do código
+        // O caminho até aqui é o código de Huffman deste caracter
+        strcpy(dicionario[(usigned char)no->caracter], caminhoAtual);
+        return;
+    }
+    // Caso contrário continua percorrendo a árvore:
+    // Tenta ir para a esquerda, adicionamos '0' ao código
+    else if(no->esquerda != NULL){
+        caminhoAtual[nivel] = '0';
+        gerarCodigos(no->esquerda, caminhoAtual, nivel + 1, dicionario);
+    }
+    // Tenta ir para a direita, adicionamos '1' ao código
+    else if(no->direita != NULL){
+        caminhoAtual[nivel] = '1';
+        gerarCodigos(no.direita, caminhoAcumulado + "1", dicionario);
+    }
+}
 
+void comprimir(char **dicionario){
+    int c;
 
+    // Abertura do arquivo origem
+    FILE *entrada = fopen("amostra.txt", "r");
+    if(entrada == NULL) return;
+
+    // Abertura do arquivo de destino
+    FILE *saida = fopen("codificado.txt", "w");
+    if(saida == NULL){
+        fclose(entrada);
+        return;
+    }
+
+    // Processo de compressão
+    while((c = fgetc(entrada)) != EOF){
+        // Converte o caracter lido para seu índice correspondente no dicionário
+        char *caminho = dicionario[(usinged char)c];
+        // Grava a representação binária no arquivo de saída
+        if(caminho != NULL) fprintf(saida, "%s", caminho);
+    }
+
+    // Finalizando
+    fclose(entrada);
+    fclose(saida);
+}
 
 
 
