@@ -68,55 +68,68 @@ void contarFrequencias(const char *arquivo, int freq[256]){
 
 
 
-void inserirOrdenado(NoLista **lista, No *novo){
+void inserirOrdenado(NoLista **lista, No *novo) {
 
-    NoLista *novoElemento = (NoLista *) malloc(sizeof(NoLista)); //novoElemento é um poneteiro para Nolista
-    if(novoElemento == NULL){
+    NoLista *novoElemento = (NoLista *) malloc(sizeof(NoLista));
+    if (novoElemento == NULL) {
         printf("Erro na alocação de memória!");
         return;
     }
 
-    
     novoElemento->raiz = novo;
     novoElemento->proximo = NULL;
 
-    //se a lista ta vazia o novo elemento vira a cabeça
-   if(*lista == NULL){
-    *lista = novoElemento;
-    return;
-   }
-
-   No *cabeca = (*lista)->raiz;
-
-   //ver se ele deve entrar antes da cabeça atual
-
-   if(novo->frequencia < cabeca->frequencia || novo->frequencia == cabeca->frequencia 
-    && novo->caractere < cabeca->caractere ){
-        novoElemento->proximo = *lista;
+    if (*lista == NULL) {
         *lista = novoElemento;
         return;
     }
 
-    //se não entrou em nenhum daqueles ele vai tentar acharr sua posição
-    //Quando o while termina, seja por break ou por chegar no fim da lista, o anterior é quem vem antes e o atual é quem vem depois. O novo entra no meio dos dois.
-    NoLista *anterior = *lista;
-    NoLista *atual = (*lista)->proximo;
+    NoLista *anterior = NULL;
+    NoLista *atual = *lista;
 
-    while(atual != NULL){
-        if(novo->frequencia < atual->raiz->frequencia || novo->frequencia == atual->raiz->frequencia &&
-    novo->caractere < atual->raiz->caractere ){
-         break;
+    int novoEhFolha = (novo->esquerda == NULL && novo->direita == NULL);
+
+    while (atual != NULL) {
+        No *noAtual = atual->raiz;
+        int atualEhFolha = (noAtual->esquerda == NULL && noAtual->direita == NULL);
+
+        int deveEntrarAntes = 0;
+
+        if (novo->frequencia < noAtual->frequencia) {
+            deveEntrarAntes = 1;
+            } else if (novo->frequencia == noAtual->frequencia) {
+    if (!novoEhFolha && atualEhFolha) {
+        // interno bate folha
+        deveEntrarAntes = 1;
+    } else if (!novoEhFolha && !atualEhFolha) {
+        // dois internos: novo entra antes (FIFO invertido)
+        deveEntrarAntes = 1;
+    } else if (novoEhFolha && atualEhFolha) {
+        // duas folhas: desempata por ASCII
+        if (novo->caractere < noAtual->caractere) {
+            deveEntrarAntes = 1;
+        }
     }
-    anterior = atual;
-   atual = atual->proximo;
-    
 }
 
-novoElemento->proximo = atual;
-anterior->proximo = novoElemento;
 
+        if (deveEntrarAntes) break;
 
+        anterior = atual;
+        atual = atual->proximo;
+    }
+
+    novoElemento->proximo = atual;
+
+    if (anterior == NULL) {
+        *lista = novoElemento;
+    } else {
+        anterior->proximo = novoElemento;
+    }
 }
+
+
+
 
 
 No *montarArvore(){
